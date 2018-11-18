@@ -3,16 +3,19 @@
 
 //! ISO 8601 date and time without timezone.
 
-use std::{str, fmt, hash};
-use std::ops::{Add, Sub, AddAssign, SubAssign};
+use core::{str, fmt, hash};
+use core::ops::{Add, Sub, AddAssign, SubAssign};
 use num_traits::ToPrimitive;
 use oldtime::Duration as OldDuration;
 
 use {Weekday, Timelike, Datelike};
 use div::div_mod_floor;
 use naive::{NaiveTime, NaiveDate, IsoWeek};
-use format::{Item, Numeric, Pad, Fixed};
-use format::{parse, Parsed, ParseError, ParseResult, DelayedFormat, StrftimeItems};
+#[cfg(feature="std")] 
+use format::{Item, parse, DelayedFormat, StrftimeItems};
+
+use format::{Numeric, Pad, Fixed};
+use format::{Parsed, ParseError, ParseResult,};
 
 /// The tight upper bound guarantees that a duration with `|Duration| >= 2^MAX_SECS_BITS`
 /// will always overflow the addition with any date and time type.
@@ -143,6 +146,7 @@ impl NaiveDateTime {
         }
     }
 
+    #[cfg(feature="std")] 
     /// Parses a string with the specified format string and returns a new `NaiveDateTime`.
     /// See the [`format::strftime` module](../format/strftime/index.html)
     /// on the supported escape sequences.
@@ -606,6 +610,7 @@ impl NaiveDateTime {
         self.date.signed_duration_since(rhs.date) + self.time.signed_duration_since(rhs.time)
     }
 
+    #[cfg(feature="std")] 
     /// Formats the combined date and time with the specified formatting items.
     /// Otherwise it is same to the ordinary [`format`](#method.format) method.
     ///
@@ -671,6 +676,7 @@ impl NaiveDateTime {
     /// assert_eq!(format!("{}", dt.format("%Y-%m-%d %H:%M:%S")), "2015-09-05 23:56:04");
     /// assert_eq!(format!("{}", dt.format("around %l %p on %b %-d")), "around 11 PM on Sep 5");
     /// ~~~~
+    #[cfg(feature="std")] 
     #[inline]
     pub fn format<'a>(&self, fmt: &'a str) -> DelayedFormat<StrftimeItems<'a>> {
         self.format_with_items(StrftimeItems::new(fmt))
@@ -1451,6 +1457,7 @@ impl fmt::Display for NaiveDateTime {
 ///
 /// assert!("foo".parse::<NaiveDateTime>().is_err());
 /// ~~~~
+#[cfg(feature="std")] 
 impl str::FromStr for NaiveDateTime {
     type Err = ParseError;
 

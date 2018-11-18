@@ -388,6 +388,7 @@
 #![cfg_attr(bench, feature(test))] // lib stability features as per RFC #507
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
+#![no_std]
 
 // The explicit 'static lifetimes are still needed for rustc 1.13-16
 // backward compatibility, and this appeases clippy. If minimum rustc
@@ -670,7 +671,7 @@ impl num_traits::FromPrimitive for Weekday {
     }
 }
 
-use std::fmt;
+use core::fmt;
 
 /// An error resulting from reading `Weekday` value with `FromStr`.
 #[derive(Clone, PartialEq)]

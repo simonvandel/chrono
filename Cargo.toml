@@ -23,8 +23,9 @@ appveyor = { repository = "chronotope/chrono" }
 name = "chrono"
 
 [features]
-default = ["clock"]
+#default = []
 clock = ["time"]
+std = []
 
 [dependencies]
 time = { version = "0.1.39", optional = true }

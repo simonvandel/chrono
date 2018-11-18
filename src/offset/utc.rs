@@ -3,7 +3,7 @@
 
 //! The UTC (Coordinated Universal Time) time zone.
 
-use std::fmt;
+use core::fmt;
 #[cfg(feature="clock")]
 use oldtime;
 

@@ -10,10 +10,15 @@
 
 //! Temporal quantification
 
-use std::{fmt, i64};
+
+use core::{fmt, i64};
+#[cfg(feature="std")] 
 use std::error::Error;
-use std::ops::{Add, Sub, Mul, Div, Neg};
+#[cfg(feature="std")]
 use std::time::Duration as StdDuration;
+
+use core::ops::{Add, Sub, Mul, Div, Neg};
+
 
 /// The number of nanoseconds in a microsecond.
 const NANOS_PER_MICRO: i32 = 1000;
@@ -248,6 +253,7 @@ impl Duration {
         self.secs == 0 && self.nanos == 0
     }
 
+    #[cfg(feature="std")]
     /// Creates a `time::Duration` object from `std::time::Duration`
     ///
     /// This function errors when original duration is larger than the maximum
@@ -267,6 +273,7 @@ impl Duration {
         Ok(d)
     }
 
+    #[cfg(feature="std")]
     /// Creates a `std::time::Duration` object from `time::Duration`
     ///
     /// This function errors when duration is less than zero. As standard
@@ -392,12 +399,14 @@ impl fmt::Display for Duration {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct OutOfRangeError(());
 
+#[cfg(feature="std")] 
 impl fmt::Display for OutOfRangeError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.description())
     }
 }
 
+#[cfg(feature="std")] 
 impl Error for OutOfRangeError {
     fn description(&self) -> &str {
         "Source duration value is out of range for the target type"

@@ -3,14 +3,17 @@
 
 //! ISO 8601 time without timezone.
 
-use std::{str, fmt, hash};
-use std::ops::{Add, Sub, AddAssign, SubAssign};
+use core::{str, fmt, hash};
+use core::ops::{Add, Sub, AddAssign, SubAssign};
 use oldtime::Duration as OldDuration;
 
 use Timelike;
 use div::div_mod_floor;
-use format::{Item, Numeric, Pad, Fixed};
-use format::{parse, Parsed, ParseError, ParseResult, DelayedFormat, StrftimeItems};
+#[cfg(feature="std")] 
+use format::{Item, parseDelayedFormat, StrftimeItems};
+
+use format::{Numeric, Pad, Fixed};
+use format::{Parsed, ParseError, ParseResult};
 
 /// ISO 8601 time without timezone.
 /// Allows for the nanosecond precision and optional leap second representation.
@@ -490,6 +493,7 @@ impl NaiveTime {
     /// # let parse_from_str = NaiveTime::parse_from_str;
     /// assert!(parse_from_str("13:07 AM", "%H:%M %p").is_err());
     /// ~~~~
+    #[cfg(feature="std")] 
     pub fn parse_from_str(s: &str, fmt: &str) -> ParseResult<NaiveTime> {
         let mut parsed = Parsed::new();
         try!(parse(&mut parsed, s, StrftimeItems::new(fmt)));
@@ -681,7 +685,7 @@ impl NaiveTime {
         //      `rhs.frac`|========================================>|
         //          |     |   |        `self - rhs`         |       |
 
-        use std::cmp::Ordering;
+        use core::cmp::Ordering;
 
         let secs = i64::from(self.secs) - i64::from(rhs.secs);
         let frac = i64::from(self.frac) - i64::from(rhs.frac);
@@ -724,6 +728,7 @@ impl NaiveTime {
     /// assert_eq!(format!("{}", t.format_with_items(fmt)), "23:56:04");
     /// ~~~~
     #[inline]
+    #[cfg(feature="std")] 
     pub fn format_with_items<'a, I>(&self, items: I) -> DelayedFormat<I>
             where I: Iterator<Item=Item<'a>> + Clone {
         DelayedFormat::new(None, Some(*self), items)
@@ -764,6 +769,7 @@ impl NaiveTime {
     /// assert_eq!(format!("{}", t.format("%-I:%M %p")), "11:56 PM");
     /// ~~~~
     #[inline]
+    #[cfg(feature="std")] 
     pub fn format<'a>(&self, fmt: &'a str) -> DelayedFormat<StrftimeItems<'a>> {
         self.format_with_items(StrftimeItems::new(fmt))
     }
@@ -1294,6 +1300,7 @@ impl fmt::Display for NaiveTime {
 ///
 /// assert!("foo".parse::<NaiveTime>().is_err());
 /// ~~~~
+#[cfg(feature="std")] 
 impl str::FromStr for NaiveTime {
     type Err = ParseError;
 

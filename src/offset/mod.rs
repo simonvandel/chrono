@@ -18,12 +18,15 @@
 //! and provides implementations for 1 and 3.
 //! An `TimeZone` instance can be reconstructed from the corresponding `Offset` instance.
 
-use std::fmt;
+use core::fmt;
 
 use Weekday;
 use naive::{NaiveDate, NaiveTime, NaiveDateTime};
 use {Date, DateTime};
-use format::{parse, Parsed, ParseResult, StrftimeItems};
+#[cfg(feature="std")] 
+use format::{parse, StrftimeItems};
+
+use format::{Parsed, ParseResult};
 
 /// The conversion result from the local time to the timezone-aware datetime types.
 #[derive(Clone, PartialEq, Debug)]
@@ -359,6 +362,7 @@ pub trait TimeZone: Sized + Clone {
     ///
     /// See also `DateTime::parse_from_str` which gives a local `DateTime`
     /// with parsed `FixedOffset`.
+    #[cfg(feature="std")] 
     fn datetime_from_str(&self, s: &str, fmt: &str) -> ParseResult<DateTime<Self>> {
         let mut parsed = Parsed::new();
         try!(parse(&mut parsed, s, StrftimeItems::new(fmt)));

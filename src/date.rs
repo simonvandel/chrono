@@ -3,16 +3,18 @@
 
 //! ISO 8601 calendar date with time zone.
 
-use std::{fmt, hash};
-use std::cmp::Ordering;
-use std::ops::{Add, Sub};
+use core::{fmt, hash};
+use core::cmp::Ordering;
+use core::ops::{Add, Sub};
 use oldtime::Duration as OldDuration;
 
 use {Weekday, Datelike};
 use offset::{TimeZone, Utc};
 use naive::{self, NaiveDate, NaiveTime, IsoWeek};
 use DateTime;
-use format::{Item, DelayedFormat, StrftimeItems};
+
+#[cfg(feature="std")] 
+use format::{Item, DelayedFormat, StrftimeItems, StrftimeItems};
 
 /// ISO 8601 calendar date with time zone.
 ///
@@ -253,6 +255,7 @@ fn map_local<Tz: TimeZone, F>(d: &Date<Tz>, mut f: F) -> Option<Date<Tz>>
     f(d.naive_local()).and_then(|date| d.timezone().from_local_date(&date).single())
 }
 
+#[cfg(feature="std")] 
 impl<Tz: TimeZone> Date<Tz> where Tz::Offset: fmt::Display {
     /// Formats the date with the specified formatting items.
     #[inline]

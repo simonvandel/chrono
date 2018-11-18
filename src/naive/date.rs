@@ -3,16 +3,20 @@
 
 //! ISO 8601 calendar date without timezone.
 
-use std::{str, fmt};
-use std::ops::{Add, Sub, AddAssign, SubAssign};
+use core::{str, fmt};
+use core::ops::{Add, Sub, AddAssign, SubAssign};
 use num_traits::ToPrimitive;
 use oldtime::Duration as OldDuration;
 
 use {Weekday, Datelike};
 use div::div_mod_floor;
 use naive::{NaiveTime, NaiveDateTime, IsoWeek};
-use format::{Item, Numeric, Pad};
-use format::{parse, Parsed, ParseError, ParseResult, DelayedFormat, StrftimeItems};
+
+#[cfg(feature="std")] 
+use format::{Item, parse, DelayedFormat, StrftimeItems};
+
+use format::{Numeric, Pad};
+use format::{Parsed, ParseError, ParseResult};
 
 use super::isoweek;
 use super::internals::{self, DateImpl, Of, Mdf, YearFlags};
@@ -407,6 +411,7 @@ impl NaiveDate {
                            Of::new(ordinal, flags))
     }
 
+    #[cfg(feature="std")] 
     /// Parses a string with the specified format string and returns a new `NaiveDate`.
     /// See the [`format::strftime` module](../format/strftime/index.html)
     /// on the supported escape sequences.
@@ -889,6 +894,7 @@ impl NaiveDate {
                           (cycle1 - cycle2))
     }
 
+    #[cfg(feature="std")] 
     /// Formats the date with the specified formatting items.
     /// Otherwise it is same to the ordinary `format` method.
     ///
@@ -922,6 +928,7 @@ impl NaiveDate {
         DelayedFormat::new(Some(*self), None, items)
     }
 
+    #[cfg(feature="std")] 
     /// Formats the date with the specified format string.
     /// See the [`format::strftime` module](../format/strftime/index.html)
     /// on the supported escape sequences.
@@ -1482,6 +1489,7 @@ impl fmt::Display for NaiveDate {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result { fmt::Debug::fmt(self, f) }
 }
 
+#[cfg(feature="std")] 
 /// Parsing a `str` into a `NaiveDate` uses the same format,
 /// [`%Y-%m-%d`](../format/strftime/index.html), as in `Debug` and `Display`.
 ///

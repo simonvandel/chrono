@@ -15,7 +15,7 @@
 
 #![allow(dead_code)] // some internal methods have been left for consistency
 
-use std::{i32, fmt};
+use core::{i32, fmt};
 use num_traits::FromPrimitive;
 use Weekday;
 use div::{div_rem, mod_floor};
@@ -476,7 +476,7 @@ mod tests {
     use super::{Of, Mdf};
     use super::{YearFlags, A, B, C, D, E, F, G, AG, BA, CB, DC, ED, FE, GF};
     use self::num_iter::range_inclusive;
-    use std::u32;
+    use core::u32;
 
     const NONLEAP_FLAGS: [YearFlags; 7] = [A, B, C, D, E, F, G];
     const LEAP_FLAGS: [YearFlags; 7] = [AG, BA, CB, DC, ED, FE, GF];

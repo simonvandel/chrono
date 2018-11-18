@@ -156,8 +156,12 @@ Notes:
 
 */
 
-use super::{Item, Numeric, Fixed, InternalFixed, InternalInternal, Pad};
+#[cfg(feature="std")] 
+use super::Item;
 
+use super::{Numeric, Fixed, InternalFixed, InternalInternal, Pad};
+
+#[cfg(feature="std")] 
 /// Parsing iterator for `strftime`-like format strings.
 #[derive(Clone, Debug)]
 pub struct StrftimeItems<'a> {
@@ -169,6 +173,7 @@ pub struct StrftimeItems<'a> {
     recons: &'static [Item<'static>],
 }
 
+#[cfg(feature="std")] 
 impl<'a> StrftimeItems<'a> {
     /// Creates a new parsing iterator from the `strftime`-like format string.
     pub fn new(s: &'a str) -> StrftimeItems<'a> {
@@ -179,6 +184,7 @@ impl<'a> StrftimeItems<'a> {
 
 const HAVE_ALTERNATES: &'static str = "z";
 
+#[cfg(feature="std")] 
 impl<'a> Iterator for StrftimeItems<'a> {
     type Item = Item<'a>;
 

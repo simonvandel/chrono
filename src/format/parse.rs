@@ -4,12 +4,15 @@
 
 //! Date and time parsing routines.
 
-use std::usize;
+use core::usize;
 
 use Weekday;
 
 use super::scan;
-use super::{Parsed, ParseResult, Item, InternalFixed, InternalInternal};
+#[cfg(feature="std")] 
+use super::{Item};
+
+use super::{Parsed, ParseResult, InternalFixed, InternalInternal};
 use super::{OUT_OF_RANGE, INVALID, TOO_SHORT, TOO_LONG, BAD_FORMAT};
 
 fn set_weekday_with_num_days_from_sunday(p: &mut Parsed, v: i64) -> ParseResult<()> {
@@ -186,6 +189,7 @@ fn parse_rfc3339<'a>(parsed: &mut Parsed, mut s: &'a str) -> ParseResult<(&'a st
     Ok((s, ()))
 }
 
+#[cfg(feature="std")] 
 /// Tries to parse given string into `parsed` with given formatting items.
 /// Returns `Ok` when the entire string has been parsed (otherwise `parsed` should not be used).
 /// There should be no trailing string after parsing;
