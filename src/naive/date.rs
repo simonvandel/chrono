@@ -3,16 +3,17 @@
 
 //! ISO 8601 calendar date without timezone.
 
-use std::{str, fmt};
-use std::ops::{Add, Sub, AddAssign, SubAssign};
+use lib::*;
+
 use num_traits::ToPrimitive;
 use oldtime::Duration as OldDuration;
 
 use {Weekday, Datelike};
 use div::div_mod_floor;
 use naive::{NaiveTime, NaiveDateTime, IsoWeek};
-use format::{Item, Numeric, Pad};
-use format::{parse, Parsed, ParseError, ParseResult, DelayedFormat, StrftimeItems};
+
+#[cfg(feature = "std")]
+use format::{Numeric, Pad, parse, Parsed, ParseError, ParseResult, StrftimeItems, DelayedFormat, Item};
 
 use super::isoweek;
 use super::internals::{self, DateImpl, Of, Mdf, YearFlags};
@@ -449,6 +450,7 @@ impl NaiveDate {
     /// # let parse_from_str = NaiveDate::parse_from_str;
     /// assert!(parse_from_str("Sat, 09 Aug 2013", "%a, %d %b %Y").is_err());
     /// ~~~~
+    #[cfg(feature = "std")]
     pub fn parse_from_str(s: &str, fmt: &str) -> ParseResult<NaiveDate> {
         let mut parsed = Parsed::new();
         try!(parse(&mut parsed, s, StrftimeItems::new(fmt)));
@@ -917,6 +919,7 @@ impl NaiveDate {
     /// assert_eq!(format!("{}", d.format_with_items(fmt)), "2015-09-05");
     /// ~~~~
     #[inline]
+    #[cfg(feature = "std")]
     pub fn format_with_items<'a, I>(&self, items: I) -> DelayedFormat<I>
             where I: Iterator<Item=Item<'a>> + Clone {
         DelayedFormat::new(Some(*self), None, items)
@@ -955,6 +958,7 @@ impl NaiveDate {
     /// assert_eq!(format!("{}", d.format("%A, %-d %B, %C%y")), "Saturday, 5 September, 2015");
     /// ~~~~
     #[inline]
+    #[cfg(feature = "std")]
     pub fn format<'a>(&self, fmt: &'a str) -> DelayedFormat<StrftimeItems<'a>> {
         self.format_with_items(StrftimeItems::new(fmt))
     }
@@ -1498,6 +1502,7 @@ impl fmt::Display for NaiveDate {
 ///
 /// assert!("foo".parse::<NaiveDate>().is_err());
 /// ~~~~
+#[cfg(feature = "std")]
 impl str::FromStr for NaiveDate {
     type Err = ParseError;
 

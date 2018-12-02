@@ -3,20 +3,23 @@
 
 //! ISO 8601 date and time with time zone.
 
-use std::{str, fmt, hash};
-use std::cmp::Ordering;
-use std::ops::{Add, Sub};
-use std::time::{SystemTime, UNIX_EPOCH};
+use lib::*;
 use oldtime::Duration as OldDuration;
 
 use {Weekday, Timelike, Datelike};
 #[cfg(feature="clock")]
 use offset::Local;
-use offset::{TimeZone, Offset, Utc, FixedOffset};
+use offset::{TimeZone, Offset, FixedOffset};
 use naive::{NaiveTime, NaiveDateTime, IsoWeek};
 use Date;
-use format::{Item, Numeric, Pad, Fixed};
-use format::{parse, Parsed, ParseError, ParseResult, DelayedFormat, StrftimeItems};
+#[cfg(feature = "std")]
+use format::{Numeric, Pad, Fixed};
+
+#[cfg(feature = "std")]
+use format::{DelayedFormat, Item, parse, Parsed, ParseError, ParseResult, StrftimeItems};
+
+#[cfg(feature = "std")]
+use offset::{Utc};
 
 /// Specific formatting options for seconds. This may be extended in the
 /// future, so exhaustive matching in external code is not recommended.
@@ -244,6 +247,7 @@ fn map_local<Tz: TimeZone, F>(dt: &DateTime<Tz>, mut f: F) -> Option<DateTime<Tz
 impl DateTime<FixedOffset> {
     /// Parses an RFC 2822 date and time string such as `Tue, 1 Jul 2003 10:52:37 +0200`,
     /// then returns a new `DateTime` with a parsed `FixedOffset`.
+    #[cfg(feature = "std")]
     pub fn parse_from_rfc2822(s: &str) -> ParseResult<DateTime<FixedOffset>> {
         const ITEMS: &'static [Item<'static>] = &[Item::Fixed(Fixed::RFC2822)];
         let mut parsed = Parsed::new();
@@ -256,6 +260,7 @@ impl DateTime<FixedOffset> {
     ///
     /// Why isn't this named `parse_from_iso8601`? That's because ISO 8601 allows some freedom
     /// over the syntax and RFC 3339 exercises that freedom to rigidly define a fixed format.
+    #[cfg(feature = "std")]
     pub fn parse_from_rfc3339(s: &str) -> ParseResult<DateTime<FixedOffset>> {
         const ITEMS: &'static [Item<'static>] = &[Item::Fixed(Fixed::RFC3339)];
         let mut parsed = Parsed::new();
@@ -283,6 +288,7 @@ impl DateTime<FixedOffset> {
     ///     "1983 Apr 13 12:09:14.274 +0000", "%Y %b %d %H:%M:%S%.3f %z");
     /// assert_eq!(dt, Ok(FixedOffset::east(0).ymd(1983, 4, 13).and_hms_milli(12, 9, 14, 274)));
     /// ```
+    #[cfg(feature = "std")]
     pub fn parse_from_str(s: &str, fmt: &str) -> ParseResult<DateTime<FixedOffset>> {
         let mut parsed = Parsed::new();
         try!(parse(&mut parsed, s, StrftimeItems::new(fmt)));
@@ -292,12 +298,14 @@ impl DateTime<FixedOffset> {
 
 impl<Tz: TimeZone> DateTime<Tz> where Tz::Offset: fmt::Display {
     /// Returns an RFC 2822 date and time string such as `Tue, 1 Jul 2003 10:52:37 +0200`.
+    #[cfg(feature = "std")]
     pub fn to_rfc2822(&self) -> String {
         const ITEMS: &'static [Item<'static>] = &[Item::Fixed(Fixed::RFC2822)];
         self.format_with_items(ITEMS.iter().cloned()).to_string()
     }
 
     /// Returns an RFC 3339 and ISO 8601 date and time string such as `1996-12-19T16:39:57-08:00`.
+    #[cfg(feature = "std")]
     pub fn to_rfc3339(&self) -> String {
         const ITEMS: &'static [Item<'static>] = &[Item::Fixed(Fixed::RFC3339)];
         self.format_with_items(ITEMS.iter().cloned()).to_string()
@@ -327,6 +335,7 @@ impl<Tz: TimeZone> DateTime<Tz> where Tz::Offset: fmt::Display {
     /// assert_eq!(dt.to_rfc3339_opts(SecondsFormat::Secs, true),
     ///            "2018-01-26T10:30:09+08:00");
     /// ```
+    #[cfg(feature = "std")]
     pub fn to_rfc3339_opts(&self, secform: SecondsFormat, use_z: bool) -> String {
         use format::Numeric::*;
         use format::Pad::Zero;
@@ -379,6 +388,7 @@ impl<Tz: TimeZone> DateTime<Tz> where Tz::Offset: fmt::Display {
 
     /// Formats the combined date and time with the specified formatting items.
     #[inline]
+    #[cfg(feature = "std")]
     pub fn format_with_items<'a, I>(&self, items: I) -> DelayedFormat<I>
             where I: Iterator<Item=Item<'a>> + Clone {
         let local = self.naive_local();
@@ -389,6 +399,7 @@ impl<Tz: TimeZone> DateTime<Tz> where Tz::Offset: fmt::Display {
     /// See the [`format::strftime` module](./format/strftime/index.html)
     /// on the supported escape sequences.
     #[inline]
+    #[cfg(feature = "std")]
     pub fn format<'a>(&self, fmt: &'a str) -> DelayedFormat<StrftimeItems<'a>> {
         self.format_with_items(StrftimeItems::new(fmt))
     }
@@ -532,6 +543,7 @@ impl<Tz: TimeZone> fmt::Display for DateTime<Tz> where Tz::Offset: fmt::Display 
     }
 }
 
+#[cfg(feature = "std")]
 impl str::FromStr for DateTime<FixedOffset> {
     type Err = ParseError;
 
@@ -559,6 +571,7 @@ impl str::FromStr for DateTime<FixedOffset> {
     }
 }
 
+#[cfg(feature = "std")]
 impl str::FromStr for DateTime<Utc> {
     type Err = ParseError;
 
@@ -576,6 +589,7 @@ impl str::FromStr for DateTime<Local> {
     }
 }
 
+#[cfg(feature = "std")]
 impl From<SystemTime> for DateTime<Utc> {
     fn from(t: SystemTime) -> DateTime<Utc> {
         let (sec, nsec) = match t.duration_since(UNIX_EPOCH) {
@@ -601,9 +615,9 @@ impl From<SystemTime> for DateTime<Local> {
     }
 }
 
+#[cfg(feature = "std")]
 impl<Tz: TimeZone> From<DateTime<Tz>> for SystemTime {
     fn from(dt: DateTime<Tz>) -> SystemTime {
-        use std::time::Duration;
 
         let sec = dt.timestamp();
         let nsec = dt.timestamp_subsec_nanos();

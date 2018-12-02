@@ -28,6 +28,7 @@ fn equals(s: &str, pattern: &str) -> bool {
 /// The absence of digits at all is an unconditional error.
 /// More than `max` digits are consumed up to the first `max` digits.
 /// Any number that does not fit in `i64` is an error.
+#[allow(dead_code)]
 pub fn number(s: &str, min: usize, max: usize) -> ParseResult<(&str, i64)> {
     assert!(min <= max);
 
@@ -49,6 +50,7 @@ pub fn number(s: &str, min: usize, max: usize) -> ParseResult<(&str, i64)> {
 
 /// Tries to consume at least one digits as a fractional second.
 /// Returns the number of whole nanoseconds (0--999,999,999).
+#[allow(dead_code)]
 pub fn nanosecond(s: &str) -> ParseResult<(&str, i64)> {
     // record the number of digits consumed for later scaling.
     let origlen = s.len();
@@ -68,6 +70,7 @@ pub fn nanosecond(s: &str) -> ParseResult<(&str, i64)> {
 
 /// Tries to consume a fixed number of digits as a fractional second.
 /// Returns the number of whole nanoseconds (0--999,999,999).
+#[allow(dead_code)]
 pub fn nanosecond_fixed(s: &str, digits: usize) -> ParseResult<(&str, i64)> {
     // record the number of digits consumed for later scaling.
     let (s, v) = try!(number(s, digits, digits));
@@ -81,6 +84,7 @@ pub fn nanosecond_fixed(s: &str, digits: usize) -> ParseResult<(&str, i64)> {
 }
 
 /// Tries to parse the month index (0 through 11) with the first three ASCII letters.
+#[allow(dead_code)]
 pub fn short_month0(s: &str) -> ParseResult<(&str, u8)> {
     if s.len() < 3 { return Err(TOO_SHORT); }
     let buf = s.as_bytes();
@@ -121,6 +125,7 @@ pub fn short_weekday(s: &str) -> ParseResult<(&str, Weekday)> {
 
 /// Tries to parse the month index (0 through 11) with short or long month names.
 /// It prefers long month names to short month names when both are possible.
+#[allow(dead_code)]
 pub fn short_or_long_month0(s: &str) -> ParseResult<(&str, u8)> {
     // lowercased month names, minus first three chars
     static LONG_MONTH_SUFFIXES: [&'static str; 12] =
@@ -156,6 +161,7 @@ pub fn short_or_long_weekday(s: &str) -> ParseResult<(&str, Weekday)> {
 }
 
 /// Tries to consume exactly one given character.
+#[allow(dead_code)]
 pub fn char(s: &str, c1: u8) -> ParseResult<&str> {
     match s.as_bytes().first() {
         Some(&c) if c == c1 => Ok(&s[1..]),
@@ -165,6 +171,7 @@ pub fn char(s: &str, c1: u8) -> ParseResult<&str> {
 }
 
 /// Tries to consume one or more whitespace.
+#[allow(dead_code)]
 pub fn space(s: &str) -> ParseResult<&str> {
     let s_ = s.trim_left();
     if s_.len() < s.len() {
@@ -177,6 +184,7 @@ pub fn space(s: &str) -> ParseResult<&str> {
 }
 
 /// Consumes any number (including zero) of colon or spaces.
+#[allow(dead_code)]
 pub fn colon_or_space(s: &str) -> ParseResult<&str> {
     Ok(s.trim_left_matches(|c: char| c == ':' || c.is_whitespace()))
 }
@@ -244,6 +252,7 @@ fn timezone_offset_internal<F>(mut s: &str, mut consume_colon: F, allow_missing_
 }
 
 /// Same to `timezone_offset` but also allows for `z`/`Z` which is same to `+00:00`.
+#[allow(dead_code)]
 pub fn timezone_offset_zulu<F>(s: &str, colon: F)
 -> ParseResult<(&str, i32)>
     where F: FnMut(&str) -> ParseResult<&str>
@@ -256,6 +265,7 @@ pub fn timezone_offset_zulu<F>(s: &str, colon: F)
 
 /// Same to `timezone_offset` but also allows for `z`/`Z` which is same to
 /// `+00:00`, and allows missing minutes entirely.
+#[allow(dead_code)]
 pub fn timezone_offset_permissive<F>(s: &str, colon: F)
 -> ParseResult<(&str, i32)>
     where F: FnMut(&str) -> ParseResult<&str>
@@ -268,6 +278,7 @@ pub fn timezone_offset_permissive<F>(s: &str, colon: F)
 
 /// Same to `timezone_offset` but also allows for RFC 2822 legacy timezones.
 /// May return `None` which indicates an insufficient offset data (i.e. `-0000`).
+#[allow(dead_code)]
 pub fn timezone_offset_2822(s: &str) -> ParseResult<(&str, Option<i32>)> {
     // tries to parse legacy time zone names
     let upto = s.as_bytes().iter().position(|&c| match c { b'a'...b'z' | b'A'...b'Z' => false,

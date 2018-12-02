@@ -15,18 +15,27 @@
 //! currently Chrono supports [one built-in syntax closely resembling
 //! C's `strftime` format](./strftime/index.html).
 
-use std::fmt;
-use std::str::FromStr;
-use std::error::Error;
+use lib::*;
 
-use {Datelike, Timelike, Weekday, ParseWeekdayError};
-use div::{div_floor, mod_floor};
+use {Weekday, ParseWeekdayError};
+
+#[cfg(feature = "std")]
+use {Datelike, Timelike};
+
+#[cfg(feature = "std")]
 use offset::{Offset, FixedOffset};
-use naive::{NaiveDate, NaiveTime};
 
+#[cfg(feature = "std")]
 pub use self::strftime::StrftimeItems;
 pub use self::parsed::Parsed;
+#[cfg(feature = "std")]
 pub use self::parse::parse;
+
+#[cfg(feature = "std")]
+use div::{div_floor, mod_floor};
+
+#[cfg(feature = "std")]
+use naive::{NaiveDate, NaiveTime};
 
 /// An unhabitated type used for `InternalNumeric` and `InternalFixed` below.
 #[derive(Clone, PartialEq, Eq)]
@@ -219,6 +228,7 @@ pub struct InternalFixed {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[allow(dead_code)]
 enum InternalInternal {
     /// Same as [`TimezoneOffsetColonZ`](#variant.TimezoneOffsetColonZ), but
     /// allows missing minutes (per [ISO 8601][iso8601]).
@@ -239,6 +249,7 @@ enum InternalInternal {
 
 /// A single formatting item. This is used for both formatting and parsing.
 #[derive(Clone, PartialEq, Eq, Debug)]
+#[cfg(feature = "std")]
 pub enum Item<'a> {
     /// A literally printed and parsed text.
     Literal(&'a str),
@@ -257,12 +268,19 @@ pub enum Item<'a> {
     Error,
 }
 
+#[cfg(feature = "std")]
 macro_rules! lit  { ($x:expr) => (Item::Literal($x)) }
+#[cfg(feature = "std")]
 macro_rules! sp   { ($x:expr) => (Item::Space($x)) }
+#[cfg(feature = "std")]
 macro_rules! num  { ($x:ident) => (Item::Numeric(Numeric::$x, Pad::None)) }
+#[cfg(feature = "std")]
 macro_rules! num0 { ($x:ident) => (Item::Numeric(Numeric::$x, Pad::Zero)) }
+#[cfg(feature = "std")]
 macro_rules! nums { ($x:ident) => (Item::Numeric(Numeric::$x, Pad::Space)) }
+#[cfg(feature = "std")]
 macro_rules! fix  { ($x:ident) => (Item::Fixed(Fixed::$x)) }
+#[cfg(feature = "std")]
 macro_rules! internal_fix { ($x:ident) => (Item::Fixed(Fixed::Internal(InternalFixed { val: InternalInternal::$x })))}
 
 /// An error from the `parse` function.
@@ -303,12 +321,14 @@ enum ParseErrorKind {
 /// Same to `Result<T, ParseError>`.
 pub type ParseResult<T> = Result<T, ParseError>;
 
+#[cfg(feature = "std")]
 impl fmt::Display for ParseError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        self.description().fmt(f)
+        fmt::Display::fmt(&self.description(),f)
     }
 }
 
+#[cfg(feature = "std")]
 impl Error for ParseError {
     fn description(&self) -> &str {
         match self.0 {
@@ -324,16 +344,24 @@ impl Error for ParseError {
 }
 
 // to be used in this module and submodules
+#[allow(dead_code)]
 const OUT_OF_RANGE: ParseError = ParseError(ParseErrorKind::OutOfRange);
+#[allow(dead_code)]
 const IMPOSSIBLE:   ParseError = ParseError(ParseErrorKind::Impossible);
+#[allow(dead_code)]
 const NOT_ENOUGH:   ParseError = ParseError(ParseErrorKind::NotEnough);
+#[allow(dead_code)]
 const INVALID:      ParseError = ParseError(ParseErrorKind::Invalid);
+#[allow(dead_code)]
 const TOO_SHORT:    ParseError = ParseError(ParseErrorKind::TooShort);
+#[allow(dead_code)]
 const TOO_LONG:     ParseError = ParseError(ParseErrorKind::TooLong);
+#[allow(dead_code)]
 const BAD_FORMAT:   ParseError = ParseError(ParseErrorKind::BadFormat);
 
 /// Tries to format given arguments with given formatting items.
 /// Internally used by `DelayedFormat`.
+#[cfg(feature = "std")]
 pub fn format<'a, I>(w: &mut fmt::Formatter, date: Option<&NaiveDate>, time: Option<&NaiveTime>,
                      off: Option<&(String, FixedOffset)>, items: I) -> fmt::Result
         where I: Iterator<Item=Item<'a>> {
@@ -547,13 +575,16 @@ mod parsed;
 
 // due to the size of parsing routines, they are in separate modules.
 mod scan;
+#[cfg(feature = "std")]
 mod parse;
 
+#[cfg(feature = "std")]
 pub mod strftime;
 
 /// A *temporary* object which can be used as an argument to `format!` or others.
 /// This is normally constructed via `format` methods of each date and time type.
 #[derive(Debug)]
+#[cfg(feature = "std")]
 pub struct DelayedFormat<I> {
     /// The date view, if any.
     date: Option<NaiveDate>,
@@ -565,6 +596,7 @@ pub struct DelayedFormat<I> {
     items: I,
 }
 
+#[cfg(feature = "std")]
 impl<'a, I: Iterator<Item=Item<'a>> + Clone> DelayedFormat<I> {
     /// Makes a new `DelayedFormat` value out of local date and time.
     pub fn new(date: Option<NaiveDate>, time: Option<NaiveTime>, items: I) -> DelayedFormat<I> {
@@ -580,6 +612,7 @@ impl<'a, I: Iterator<Item=Item<'a>> + Clone> DelayedFormat<I> {
     }
 }
 
+#[cfg(feature = "std")]
 impl<'a, I: Iterator<Item=Item<'a>> + Clone> fmt::Display for DelayedFormat<I> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         format(f, self.date.as_ref(), self.time.as_ref(), self.off.as_ref(), self.items.clone())

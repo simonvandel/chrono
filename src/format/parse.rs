@@ -4,13 +4,15 @@
 
 //! Date and time parsing routines.
 
-use std::usize;
-
+use lib::*;
 use Weekday;
 
 use super::scan;
-use super::{Parsed, ParseResult, Item, InternalFixed, InternalInternal};
+use super::{Parsed, ParseResult, InternalFixed, InternalInternal};
 use super::{OUT_OF_RANGE, INVALID, TOO_SHORT, TOO_LONG, BAD_FORMAT};
+
+#[cfg(feature = "std")]
+use super::{Item};
 
 fn set_weekday_with_num_days_from_sunday(p: &mut Parsed, v: i64) -> ParseResult<()> {
     p.set_weekday(match v {
@@ -202,6 +204,7 @@ fn parse_rfc3339<'a>(parsed: &mut Parsed, mut s: &'a str) -> ParseResult<(&'a st
 ///   so one can prepend any number of whitespace then any number of zeroes before numbers.
 ///
 /// - (Still) obeying the intrinsic parsing width. This allows, for example, parsing `HHMMSS`.
+#[cfg(feature = "std")]
 pub fn parse<'a, I>(parsed: &mut Parsed, mut s: &str, items: I) -> ParseResult<()>
         where I: Iterator<Item=Item<'a>> {
     macro_rules! try_consume {

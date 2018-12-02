@@ -10,10 +10,8 @@
 
 //! Temporal quantification
 
-use std::{fmt, i64};
-use std::error::Error;
-use std::ops::{Add, Sub, Mul, Div, Neg};
-use std::time::Duration as StdDuration;
+use lib::*;
+use lib::Duration as StdDuration;
 
 /// The number of nanoseconds in a microsecond.
 const NANOS_PER_MICRO: i32 = 1000;
@@ -392,12 +390,14 @@ impl fmt::Display for Duration {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct OutOfRangeError(());
 
+#[cfg(feature = "std")]
 impl fmt::Display for OutOfRangeError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.description())
     }
 }
 
+#[cfg(feature = "std")]
 impl Error for OutOfRangeError {
     fn description(&self) -> &str {
         "Source duration value is out of range for the target type"

@@ -384,6 +384,8 @@
 //! For now you can try the [Chrono-tz](https://github.com/chronotope/chrono-tz/) crate instead.
 
 #![doc(html_root_url = "https://docs.rs/chrono/latest/")]
+#![cfg_attr(not(feature = "std"), no_std)]
+
 
 #![cfg_attr(bench, feature(test))] // lib stability features as per RFC #507
 #![deny(missing_docs)]
@@ -413,6 +415,101 @@ extern crate num_traits;
 extern crate rustc_serialize;
 #[cfg(feature = "serde")]
 extern crate serde as serdelib;
+
+/// A facade around all the types we need from the `std`, `core`, and `alloc`
+/// crates. This avoids elaborate import wrangling having to happen in every
+/// module.
+mod lib {
+    mod core {
+        #[cfg(not(feature = "std"))]
+        pub use core::*;
+        #[cfg(feature = "std")]
+        pub use std::*;
+    }
+
+    pub use self::core::{cmp, iter, mem, num, slice, str};
+    pub use self::core::{f32, f64};
+    pub use self::core::{i16, i32, i64, i8, isize};
+    pub use self::core::{u16, u32, u64, u8, usize};
+
+    pub use self::core::cell::{Cell, RefCell};
+    pub use self::core::clone::{self, Clone};
+    pub use self::core::cmp::Ordering;
+    pub use self::core::convert::{self, From, Into};
+    pub use self::core::default::{self, Default};
+    pub use self::core::fmt::{self, Debug};
+    pub use self::core::hash::{self, BuildHasher, Hash};
+    pub use self::core::marker::{self, PhantomData};
+    pub use self::core::ops::{Add, AddAssign, Div, Mul, Neg, Range, Sub, SubAssign};
+    pub use self::core::option::{self, Option};
+    pub use self::core::result::{self, Result};
+    pub use self::core::str::{FromStr};
+    pub use self::core::time::Duration;
+
+
+    #[cfg(all(feature = "alloc", not(feature = "std")))]
+    pub use alloc::borrow::{Cow, ToOwned};
+    #[cfg(feature = "std")]
+    pub use std::borrow::{Cow, ToOwned};
+
+    #[cfg(all(feature = "alloc", not(feature = "std")))]
+    pub use alloc::string::{String, ToString};
+    #[cfg(feature = "std")]
+    pub use std::string::String;
+
+    #[cfg(all(feature = "alloc", not(feature = "std")))]
+    pub use alloc::vec::Vec;
+    #[cfg(feature = "std")]
+    pub use std::vec::Vec;
+
+    #[cfg(all(feature = "alloc", not(feature = "std")))]
+    pub use alloc::boxed::Box;
+    #[cfg(feature = "std")]
+    pub use std::boxed::Box;
+
+    #[cfg(all(feature = "rc", feature = "alloc", not(feature = "std")))]
+    pub use alloc::rc::{Rc, Weak as RcWeak};
+    #[cfg(all(feature = "rc", feature = "std"))]
+    pub use std::rc::{Rc, Weak as RcWeak};
+
+    #[cfg(all(feature = "rc", feature = "alloc", not(feature = "std")))]
+    pub use alloc::sync::{Arc, Weak as ArcWeak};
+    #[cfg(all(feature = "rc", feature = "std"))]
+    pub use std::sync::{Arc, Weak as ArcWeak};
+
+    #[cfg(all(feature = "alloc", not(feature = "std")))]
+    pub use alloc::collections::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, VecDeque};
+    #[cfg(feature = "std")]
+    pub use std::collections::{BTreeMap, BTreeSet, BinaryHeap, LinkedList, VecDeque};
+
+    #[cfg(feature = "std")]
+    pub use std::{error, net};
+    #[cfg(feature = "std")]
+    pub use std::error::Error;
+
+    #[cfg(feature = "std")]
+    pub use std::collections::{HashMap, HashSet};
+    #[cfg(feature = "std")]
+    pub use std::ffi::{CStr, CString, OsStr, OsString};
+    #[cfg(feature = "std")]
+    pub use std::io::Write;
+    #[cfg(feature = "std")]
+    pub use std::num::Wrapping;
+    #[cfg(feature = "std")]
+    pub use std::path::{Path, PathBuf};
+    #[cfg(feature = "std")]
+    pub use std::sync::{Mutex, RwLock};
+    #[cfg(feature = "std")]
+    pub use std::time::{SystemTime, UNIX_EPOCH};
+
+
+    
+
+    #[cfg(range_inclusive)]
+    pub use self::core::ops::RangeInclusive;
+}
+
+use lib::*;
 
 // this reexport is to aid the transition and should not be in the prelude!
 pub use oldtime::Duration;
@@ -670,7 +767,6 @@ impl num_traits::FromPrimitive for Weekday {
     }
 }
 
-use std::fmt;
 
 /// An error resulting from reading `Weekday` value with `FromStr`.
 #[derive(Clone, PartialEq)]

@@ -3,16 +3,16 @@
 
 //! ISO 8601 calendar date with time zone.
 
-use std::{fmt, hash};
-use std::cmp::Ordering;
-use std::ops::{Add, Sub};
+use lib::*;
 use oldtime::Duration as OldDuration;
 
 use {Weekday, Datelike};
 use offset::{TimeZone, Utc};
 use naive::{self, NaiveDate, NaiveTime, IsoWeek};
 use DateTime;
-use format::{Item, DelayedFormat, StrftimeItems};
+
+#[cfg(feature = "std")]
+use format::{DelayedFormat, Item, StrftimeItems};
 
 /// ISO 8601 calendar date with time zone.
 ///
@@ -256,6 +256,7 @@ fn map_local<Tz: TimeZone, F>(d: &Date<Tz>, mut f: F) -> Option<Date<Tz>>
 impl<Tz: TimeZone> Date<Tz> where Tz::Offset: fmt::Display {
     /// Formats the date with the specified formatting items.
     #[inline]
+    #[cfg(feature = "std")]
     pub fn format_with_items<'a, I>(&self, items: I) -> DelayedFormat<I>
             where I: Iterator<Item=Item<'a>> + Clone {
         DelayedFormat::new_with_offset(Some(self.naive_local()), None, &self.offset, items)
@@ -265,6 +266,7 @@ impl<Tz: TimeZone> Date<Tz> where Tz::Offset: fmt::Display {
     /// See the [`format::strftime` module](./format/strftime/index.html)
     /// on the supported escape sequences.
     #[inline]
+    #[cfg(feature = "std")]
     pub fn format<'a>(&self, fmt: &'a str) -> DelayedFormat<StrftimeItems<'a>> {
         self.format_with_items(StrftimeItems::new(fmt))
     }
